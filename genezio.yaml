@@ -10,8 +10,14 @@ backend:
     packageManager: npm
   path: ./
   scripts:
-    deploy: npm install
-    local: npm install
+    deploy: |
+      npm install && npm run build    # Ensures build is done after install
+    local: |
+      npm install
+      npm run dev
+  environment:
+    DATABASE_URL: ${{ databases.mongodarknet.url }}  # Use the MongoDB URL for backend
+  subdomain: eagle
 
 frontend:
   environment:
