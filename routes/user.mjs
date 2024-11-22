@@ -1,8 +1,8 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import { connectDB } from '../config.mjs';
-import { User, ExtractedData } from '../models/user.mjs';
-import { dbConnection } from '../app.mjs';
+import { User } from '../models/user.mjs';
+import ExtractedData from '../models/extractedData.mjs'; // Import the ExtractedData model
 
 const router = express.Router();
 dotenv.config();
@@ -20,7 +20,6 @@ router.get('/search', async (req, res) => {
 
   try {
     console.log('Searching for:', query);
-    // Search across all fields in the extracted_data schema
     const results = await ExtractedData.find({
       $text: { $search: query },
     });
@@ -99,34 +98,6 @@ router.delete('/:id', async (req, res) => {
     res.json({ message: 'User deleted' });
   } catch (err) {
     res.status(500).json({ message: err.message });
-  }
-});
-
-router.get('/search', async (req, res) => {
-  const { query } = req.query;
-
-  if (!query) {
-    return res.status(400).json({ message: 'Query parameter is required.' });
-  }
-
-  try {
-    const collection = dbConnection.connection.db.collection('data_darknet');
-
-    // Perform a text search across all fields
-    const results = await collection
-      .find({ $text: { $search: query } }, { score: { $meta: 'textScore' } })
-      .sort({ score: { $meta: 'textScore' } })
-      .limit(10)
-      .toArray();
-
-    if (results.length === 0) {
-      return res.status(404).json({ message: 'No results found.' });
-    }
-
-    res.json(results);
-  } catch (error) {
-    console.error('Error searching database:', error);
-    res.status(500).json({ message: 'Internal server error.' });
   }
 });
 
