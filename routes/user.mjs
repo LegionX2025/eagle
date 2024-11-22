@@ -1,8 +1,12 @@
 import express from 'express';
-import { connectDB2 } from '../config.mjs';
-import ExtractedData from '../models/extractedData.mjs';
+import dotenv from 'dotenv';
+import { connectDB } from '../config.mjs';
+import ExtractedData from '../models/extractedData.mjs'; // Make sure you have the model for ExtractedData
 
 const router = express.Router();
+dotenv.config();
+
+const { db } = await connectDB(); // Assuming the native MongoDB driver
 
 router.get('/search', async (req, res) => {
   const { query } = req.query;
@@ -12,29 +16,16 @@ router.get('/search', async (req, res) => {
   }
 
   try {
-    const conn = await connectDB2();
-    const ExtractedDataModel = conn.model(
-      'ExtractedData',
-      ExtractedData.schema
-    );
-
-    const results = await ExtractedDataModel.find({
-      $or: [
-        { 'web_info.title': { $regex: query, $options: 'i' } },
-        { 'web_info.description': { $regex: query, $options: 'i' } },
-        { 'web_info.content': { $regex: query, $options: 'i' } },
-        { 'financial_entity.btc_wallets': { $regex: query, $options: 'i' } },
-        { 'financial_entity.eth_wallets': { $regex: query, $options: 'i' } },
-        { 'person_entity.emails': { $regex: query, $options: 'i' } },
-        { 'person_entity.usernames': { $regex: query, $options: 'i' } },
-        { 'person_entity.phone_number': { $regex: query, $options: 'i' } },
-      ],
-    }).limit(20);
+    console.log('Searching for:', query);
+    const results = await ExtractedData.find({
+      $text: { $search: query },
+    });
 
     if (results.length === 0) {
       return res.status(404).json({ message: 'No results found.' });
     }
 
+    console.log('Found results:', results);
     res.json(results);
   } catch (error) {
     console.error('Error searching database:', error);
