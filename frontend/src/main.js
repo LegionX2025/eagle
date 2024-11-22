@@ -50,26 +50,23 @@ document.getElementById('search-form').addEventListener('submit', async (e) => {
 
   try {
     const response = await fetch(
-      `${API_URL}/api/search?query=${encodeURIComponent(query)}`
+      `/api/search?query=${encodeURIComponent(query)}`
     );
-
-    console.log('Response status:', response.status);
 
     // Check if the response is in JSON format
     const contentType = response.headers.get('Content-Type');
     let responseText = await response.text(); // Read raw text
-    console.log('Raw response:', responseText);
 
     if (contentType && contentType.includes('application/json')) {
       try {
         const data = JSON.parse(responseText);
-        console.log('Parsed data:', data);
 
         if (response.ok && data.length) {
-          resultsContainer.innerHTML = '';
+          resultsContainer.innerHTML = ''; // Clear loading text
           data.forEach((item) => {
             const resultCard = document.createElement('div');
             resultCard.className = 'result-card fade-in';
+
             resultCard.innerHTML = `
               <h5>${item.web_info?.title || 'No Title'}</h5>
               <p>${item.web_info?.description || 'No Description'}</p>
