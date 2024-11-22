@@ -1,13 +1,13 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import { connectDB } from '../config.mjs';
+import { connectDB1, connectDB2 } from '../config.mjs';
 import { User } from '../models/user.mjs';
 import ExtractedData from '../models/extractedData.mjs'; // Import the ExtractedData model
 
 const router = express.Router();
 dotenv.config();
 
-const { db } = await connectDB(); // Assuming the native MongoDB driver
+const { db } = await connectDB2(); // Assuming the native MongoDB driver
 const collection = db.collection('data_darknet');
 
 router.get('/search', async (req, res) => {

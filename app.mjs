@@ -1,5 +1,5 @@
 import express from 'express';
-import { connectDB } from './config.mjs';
+import { connectDB1, connectDB2 } from './config.mjs';
 import userRoutes from './routes/user.mjs';
 import dotenv from 'dotenv';
 import cors from 'cors';
@@ -19,7 +19,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Connect to the database
-const dbConnection = await connectDB();
+const dbConnection1 = await connectDB1();
+const dbConnection2 = await connectDB2();
 
 // API routes
 app.use('/api', userRoutes);
@@ -32,4 +33,4 @@ app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
 
-export { dbConnection };
+export { dbConnection1, dbConnection2 };
