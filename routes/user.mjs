@@ -17,36 +17,46 @@ router.get('/search', async (req, res) => {
   }
 
   try {
-    const results = await collection
-      .find({
-        $or: [
-          { 'hash-ID': { $regex: query, $options: 'i' } },
-          { 'web_info.url': { $regex: query, $options: 'i' } },
-          { 'web_info.title': { $regex: query, $options: 'i' } },
-          { 'web_info.description': { $regex: query, $options: 'i' } },
-          { 'web_info.content': { $regex: query, $options: 'i' } },
-          { 'financial_entity.btc_wallets': { $regex: query, $options: 'i' } },
-          { 'financial_entity.eth_wallets': { $regex: query, $options: 'i' } },
-          {
-            'financial_entity.credit_cards.visa': {
-              $regex: query,
-              $options: 'i',
-            },
+    const results = await ExtractedData.find({
+      $or: [
+        { 'hash-ID': { $regex: query, $options: 'i' } },
+        { 'web_info.url': { $regex: query, $options: 'i' } },
+        { 'web_info.title': { $regex: query, $options: 'i' } },
+        { 'web_info.description': { $regex: query, $options: 'i' } },
+        { 'web_info.content': { $regex: query, $options: 'i' } },
+        { 'financial_entity.btc_wallets': { $regex: query, $options: 'i' } },
+        { 'financial_entity.eth_wallets': { $regex: query, $options: 'i' } },
+        {
+          'financial_entity.credit_cards.visa': {
+            $regex: query,
+            $options: 'i',
           },
-          {
-            'financial_entity.credit_cards.mastercard': {
-              $regex: query,
-              $options: 'i',
-            },
+        },
+        {
+          'financial_entity.credit_cards.mastercard': {
+            $regex: query,
+            $options: 'i',
           },
-          { 'person_entity.emails': { $regex: query, $options: 'i' } },
-          { 'person_entity.usernames': { $regex: query, $options: 'i' } },
-          { 'person_entity.tox_ids': { $regex: query, $options: 'i' } },
-          { 'person_entity.ssi': { $regex: query, $options: 'i' } },
-          { 'person_entity.phone_number': { $regex: query, $options: 'i' } },
-        ],
-      })
-      .toArray();
+        },
+        {
+          'financial_entity.credit_cards.amex': {
+            $regex: query,
+            $options: 'i',
+          },
+        },
+        {
+          'financial_entity.credit_cards.discover': {
+            $regex: query,
+            $options: 'i',
+          },
+        },
+        { 'person_entity.emails': { $regex: query, $options: 'i' } },
+        { 'person_entity.usernames': { $regex: query, $options: 'i' } },
+        { 'person_entity.tox_ids': { $regex: query, $options: 'i' } },
+        { 'person_entity.ssi': { $regex: query, $options: 'i' } },
+        { 'person_entity.phone_number': { $regex: query, $options: 'i' } },
+      ],
+    });
 
     if (results.length === 0) {
       return res.status(404).json({ message: 'No results found.' });

@@ -196,12 +196,27 @@
                 const resultCard = document.createElement('div');
                 resultCard.className = 'result-card';
                 resultCard.innerHTML = `
-                            <h5>${item.title || 'No Title'}</h5>
-                            <p>${item.description || 'No Description'}</p>
-                            <a href="${item.url}" target="_blank">${
-                  item.url
+                  <h5>${item.web_info.title || 'No Title'}</h5>
+                  <p>${item.web_info.description || 'No Description'}</p>
+                  <a href="${item.web_info.url}" target="_blank">${
+                  item.web_info.url
                 }</a>
-                        `;
+                  <p><strong>BTC Wallets:</strong> ${item.financial_entity.btc_wallets.join(
+                    ', '
+                  )}</p>
+                  <p><strong>ETH Wallets:</strong> ${item.financial_entity.eth_wallets.join(
+                    ', '
+                  )}</p>
+                  <p><strong>Emails:</strong> ${item.person_entity.emails.join(
+                    ', '
+                  )}</p>
+                  <p><strong>Usernames:</strong> ${item.person_entity.usernames.join(
+                    ', '
+                  )}</p>
+                  <p><strong>Phone Numbers:</strong> ${item.person_entity.phone_number.join(
+                    ', '
+                  )}</p>
+                `;
                 resultsContainer.appendChild(resultCard);
               });
             } else {

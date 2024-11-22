@@ -1,32 +1,42 @@
 backend:
-    functions:
-        - entry: app.mjs
-          handler: handler
-          name: express-mongo-starter
-          path: ./
-          type: httpServer
-    language:
-        name: js
-        packageManager: npm
-    path: ./
-    scripts:
-        deploy: npm install
-        local: npm install
+  functions:
+    - entry: app.mjs
+      handler: handler
+      name: express-mongo-starter
+      path: ./
+      type: httpServer
+  language:
+    name: js
+    packageManager: npm
+  path: ./
+  scripts:
+    deploy: npm install
+    local: npm install
+
 frontend:
-    environment:
-        VITE_API_URL: ${{ backend.functions.express-mongo-starter.url }}
-    path: ./frontend
-    publish: ./dist
-    scripts:
-        build: npm run build
-        deploy: npm install
-        start: npm run dev
-    subdomain: eagle
+  environment:
+    VITE_API_URL: ${{ backend.functions.express-mongo-starter.url }}
+    # If you need to expose environment variables to the frontend, you can do so here (e.g., database URLs for testing)
+  path: ./frontend
+  publish: ./dist
+  scripts:
+    build: npm run build
+    deploy: npm install
+    start: npm run dev
+  subdomain: eagle
+
 name: eagle
 region: us-east-1
+
 services:
-    databases:
-        - name: my-mongo-db
-          region: us-east-1
-          type: mongo-atlas
+  databases:
+    - name: my-mongo-db
+      region: us-east-1
+      type: mongo-atlas
+      # Add any necessary connection configurations for this database
+    - name: mongodarknet  # New MongoDB database (MONGODARKNET_DATABASE_URL)
+      region: us-east-1
+      type: mongo-atlas
+      # Add any necessary connection configurations for this second database
+
 yamlVersion: 2
