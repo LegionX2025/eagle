@@ -3,11 +3,14 @@ import { MongoClient } from 'mongodb';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
 dotenv.config();
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
-const __dirname = path.resolve();
 
 // Use your environment variable for the MongoDB URL
 const uri = process.env.MONGODARKNET_DATABASE_URL;
@@ -45,10 +48,16 @@ app.get('/api/search', async (req, res) => {
       .limit(20)
       .toArray();
 
-    res.json(results); // Send results as JSON, even if empty
+    res.json({ success: true, data: results });
   } catch (error) {
     console.error('Error fetching data from MongoDB:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res
+      .status(500)
+      .json({
+        success: false,
+        error: 'Internal server error',
+        details: error.message,
+      });
   } finally {
     if (client) {
       await client.close();

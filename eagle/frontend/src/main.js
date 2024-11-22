@@ -53,7 +53,10 @@ document.getElementById('search-form').addEventListener('submit', async (e) => {
       `/api/search?query=${encodeURIComponent(query)}`
     );
     console.log('Response status:', response.status);
-    console.log('Response headers:', response.headers);
+    console.log(
+      'Response headers:',
+      Object.fromEntries(response.headers.entries())
+    );
 
     const responseText = await response.text();
     console.log('Raw response:', responseText);
@@ -72,9 +75,9 @@ document.getElementById('search-form').addEventListener('submit', async (e) => {
 
     console.log('Parsed data:', data);
 
-    if (Array.isArray(data) && data.length > 0) {
+    if (data.success && Array.isArray(data.data) && data.data.length > 0) {
       resultsContainer.innerHTML = '';
-      data.forEach((item) => {
+      data.data.forEach((item) => {
         const resultCard = document.createElement('div');
         resultCard.className = 'result-card fade-in';
         resultCard.innerHTML = `
@@ -101,8 +104,15 @@ document.getElementById('search-form').addEventListener('submit', async (e) => {
               `;
         resultsContainer.appendChild(resultCard);
       });
-    } else {
+    } else if (
+      data.success &&
+      (!Array.isArray(data.data) || data.data.length === 0)
+    ) {
       resultsContainer.innerHTML = `<p class="text-center text-muted">No results found.</p>`;
+    } else {
+      resultsContainer.innerHTML = `<p class="text-center text-danger">Error: ${
+        data.error || 'Unknown error'
+      }</p>`;
     }
   } catch (error) {
     console.error('Error fetching search results:', error);
