@@ -45,34 +45,59 @@ document.getElementById('search-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const query = document.getElementById('search-query').value.trim();
   const resultsContainer = document.getElementById('results-container');
+  const loadingIndicator = document.querySelector('.loading');
 
-  resultsContainer.innerHTML = 'Loading...';
+  resultsContainer.innerHTML = '';
+  loadingIndicator.classList.remove('d-none');
 
   try {
     const response = await fetch(
-      `${API_URL}/search?query=${encodeURIComponent(query)}`
+      `/api/search?query=${encodeURIComponent(query)}`
     );
-    const results = await response.json();
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
 
-    if (results.length) {
-      resultsContainer.innerHTML = results
-        .map(
-          (item) => `
-          <div class="result-card">
-            <h3>${item.web_info.title || 'No Title'}</h3>
-            <p>${item.web_info.description || 'No Description'}</p>
-            <a href="${item.web_info.url}" target="_blank">${
-            item.web_info.url
-          }</a>
-          </div>
-        `
-        )
-        .join('');
+    const data = await response.json();
+    console.log('Fetched Data:', data); // Debugging
+
+    loadingIndicator.classList.add('d-none');
+    if (data.length) {
+      data.forEach((item) => {
+        const resultCard = document.createElement('div');
+        resultCard.className = 'result-card';
+        resultCard.innerHTML = `
+          <h5>${item.web_info?.title || 'No Title'}</h5>
+          <p>${item.web_info?.description || 'No Description'}</p>
+          <a href="${item.web_info?.url || '#'}" target="_blank">${
+          item.web_info?.url || 'No URL'
+        }</a>
+          <p><strong>BTC Wallets:</strong> ${
+            item.financial_entity?.btc_wallets?.join(', ') || 'None'
+          }</p>
+          <p><strong>ETH Wallets:</strong> ${
+            item.financial_entity?.eth_wallets?.join(', ') || 'None'
+          }</p>
+          <p><strong>Emails:</strong> ${
+            item.person_entity?.emails?.join(', ') || 'None'
+          }</p>
+          <p><strong>Usernames:</strong> ${
+            item.person_entity?.usernames?.join(', ') || 'None'
+          }</p>
+          <p><strong>Phone Numbers:</strong> ${
+            item.person_entity?.phone_number?.join(', ') || 'None'
+          }</p>
+        `;
+        resultsContainer.appendChild(resultCard);
+      });
     } else {
-      resultsContainer.innerHTML = '<p>No results found.</p>';
+      resultsContainer.innerHTML =
+        '<p class="text-center text-muted">No results found.</p>';
     }
   } catch (error) {
-    console.error(error);
-    resultsContainer.innerHTML = '<p>Error loading results.</p>';
+    console.error('Error fetching search results:', error);
+    loadingIndicator.classList.add('d-none');
+    resultsContainer.innerHTML =
+      '<p class="text-center text-danger">An error occurred while searching.</p>';
   }
 });
