@@ -136,8 +136,6 @@
           intelligence data.
         </p>
       </section>
-
-      <!-- Search Section -->
       <section class="search-section">
         <div class="container">
           <h2 class="text-center">Search</h2>
@@ -148,91 +146,65 @@
                 class="form-control"
                 id="search-query"
                 placeholder="Enter your search term"
-                aria-label="Search input"
                 required
               />
             </div>
             <button type="submit" class="btn btn-primary w-100">Search</button>
           </form>
-          <p class="loading d-none">Loading...</p>
         </div>
       </section>
-
-      <!-- Results Section -->
+      
       <section class="results-section">
         <div class="container">
           <h2 class="text-center">Search Results</h2>
-          <div id="results-container">
-            <!-- Results will be dynamically inserted here -->
-          </div>
+          <div id="results-container"></div>
         </div>
       </section>
-    </main>
+      
+      <script>
+        document.getElementById('search-form').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const query = document.getElementById('search-query').value.trim();
+          const resultsContainer = document.getElementById('results-container');
+          resultsContainer.innerHTML = ''; // Clear previous results
+      
+          try {
+            const response = await fetch(`/api/search?query=${encodeURIComponent(query)}`);
+            const data = await response.json();
+      
+            if (data.length) {
+              data.forEach((item) => {
+                const resultCard = document.createElement('div');
+                resultCard.className = 'result-card';
+                resultCard.innerHTML = `
+                  <h5>${item.web_info.title || 'No Title'}</h5>
+                  <p>${item.web_info.description || 'No Description'}</p>
+                  <a href="${item.web_info.url}" target="_blank">${item.web_info.url}</a>
+                  <p><strong>BTC Wallets:</strong> ${item.financial_entity.btc_wallets.join(', ')}</p>
+                  <p><strong>ETH Wallets:</strong> ${item.financial_entity.eth_wallets.join(', ')}</p>
+                  <p><strong>Emails:</strong> ${item.person_entity.emails.join(', ')}</p>
+                  <p><strong>Usernames:</strong> ${item.person_entity.usernames.join(', ')}</p>
+                  <p><strong>Phone Numbers:</strong> ${item.person_entity.phone_number.join(', ')}</p>
+                `;
+                resultsContainer.appendChild(resultCard);
+              });
+            } else {
+              resultsContainer.innerHTML = '<p class="text-center text-muted">No results found.</p>';
+            }
+          } catch (error) {
+            resultsContainer.innerHTML = '<p class="text-center text-danger">An error occurred while searching.</p>';
+          }
+        });
+      </script>
+      
 
     <!-- Footer -->
     <footer>
       <p>&copy; 2024 Eagle Eye. All Rights Reserved.</p>
     </footer>
 
-    <script>
-      document
-        .getElementById('search-form')
-        .addEventListener('submit', async (e) => {
-          e.preventDefault();
-          const query = document.getElementById('search-query').value.trim();
-          const resultsContainer = document.getElementById('results-container');
-          const loadingIndicator = document.querySelector('.loading');
 
-          resultsContainer.innerHTML = '';
-          loadingIndicator.classList.remove('d-none');
 
-          try {
-            const response = await fetch(
-              `/api/search?query=${encodeURIComponent(query)}`
-            );
-            const data = await response.json();
-
-            loadingIndicator.classList.add('d-none');
-            if (data.length) {
-              data.forEach((item) => {
-                const resultCard = document.createElement('div');
-                resultCard.className = 'result-card';
-                resultCard.innerHTML = `
-              <h5>${item.web_info.title || 'No Title'}</h5>
-              <p>${item.web_info.description || 'No Description'}</p>
-              <a href="${item.web_info.url}" target="_blank">${
-                  item.web_info.url
-                }</a>
-              <p><strong>BTC Wallets:</strong> ${item.financial_entity.btc_wallets.join(
-                ', '
-              )}</p>
-              <p><strong>ETH Wallets:</strong> ${item.financial_entity.eth_wallets.join(
-                ', '
-              )}</p>
-              <p><strong>Emails:</strong> ${item.person_entity.emails.join(
-                ', '
-              )}</p>
-              <p><strong>Usernames:</strong> ${item.person_entity.usernames.join(
-                ', '
-              )}</p>
-              <p><strong>Phone Numbers:</strong> ${item.person_entity.phone_number.join(
-                ', '
-              )}</p>
-            `;
-                resultsContainer.appendChild(resultCard);
-              });
-            } else {
-              resultsContainer.innerHTML =
-                '<p class="text-center text-muted">No results found.</p>';
-            }
-          } catch (error) {
-            console.error('Error fetching search results:', error);
-            loadingIndicator.classList.add('d-none');
-            resultsContainer.innerHTML =
-              '<p class="text-center text-danger">An error occurred while searching.</p>';
-          }
-        });
-    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
   </body>
 </html>

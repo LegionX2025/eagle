@@ -103,16 +103,8 @@ router.delete('/:id', async (req, res) => {
 
 import ExtractedData from '../models/user.mjs';
 
-// Create a text index for search functionality
-await ExtractedData.createIndexes({
-  'web_info.title': 'text',
-  'web_info.description': 'text',
-  'web_info.content': 'text',
-});
-
 router.get('/search', async (req, res) => {
   const { query } = req.query;
-
   if (!query) {
     return res.status(400).json({ message: 'Query parameter is required.' });
   }
@@ -120,12 +112,15 @@ router.get('/search', async (req, res) => {
   try {
     const results = await ExtractedData.find({
       $text: { $search: query },
-    }).limit(50); // Limit results for performance
+    });
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: 'No results found.' });
+    }
 
     res.json(results);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Internal server error.' });
   }
 });
 
