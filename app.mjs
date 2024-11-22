@@ -4,25 +4,28 @@ import userRoutes from './routes/user.mjs';
 import dotenv from 'dotenv';
 import cors from 'cors';
 
+dotenv.config();
+
 const app = express();
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 3000;
 
-// Connect to both databases
-connectDB1();
-connectDB2();
-
-// Middleware
-app.use(cors());
+// Middleware setup
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(cors());
 
-// API routes
+// API Routes
 app.use('/api', userRoutes);
 
-// Serve static frontend
-app.use(express.static('frontend'));
+// Serve static files (for frontend)
+app.use(express.static('public'));
 
-// Start server
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+// Connect to the database
+connectDB1()
+  .then(() => {
+    app.listen(port, () => {
+      console.log(`Server is running on http://localhost:${port}`);
+    });
+  })
+  .catch((error) => {
+    console.error('Error connecting to the database:', error);
+  });

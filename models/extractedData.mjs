@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 
+// Define the ExtractedData schema
 const extractedDataSchema = new mongoose.Schema(
   {
     'hash-ID': { type: String, required: true, unique: true },
@@ -8,7 +9,6 @@ const extractedDataSchema = new mongoose.Schema(
       url: { type: String, required: true },
       title: { type: String },
       description: { type: String },
-      query_parameters: { type: Map, of: String },
       content: { type: String },
       links: [{ type: String }],
     },
@@ -25,18 +25,17 @@ const extractedDataSchema = new mongoose.Schema(
     person_entity: {
       emails: [String],
       usernames: [String],
-      tox_ids: [String],
-      ssi: [String],
       phone_number: [String],
+      ssi: [String],
     },
   },
   { timestamps: true }
 );
 
-// Create a text index for fields you want to search on
+// Adding a text index to support full-text search
 extractedDataSchema.index({
-  'web_info.url': 'text',
   'web_info.title': 'text',
+  'web_info.description': 'text',
   'web_info.content': 'text',
 });
 
