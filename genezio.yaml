@@ -11,12 +11,12 @@ backend:
   path: ./
   scripts:
     deploy: |
-      npm install    # Only install dependencies, no build step
+      npm install    # Install dependencies, no build step
     local: |
       npm install
       npm run dev    # Start in development mode
   environment:
-    DATABASE_URL: ${{ databases.mongodarknet.url }}  # Use MongoDB URL for backend
+    DATABASE_URL: ${{ services.databases.mongodarknet.url }}  # Directly reference the database URL
   subdomain: eagle
 
 frontend:
@@ -25,9 +25,9 @@ frontend:
   path: ./frontend
   publish: ./dist
   scripts:
-    build: npm run build    # Ensure this is correct if you have frontend build steps
+    build: npm run build
     deploy: npm install
-    start: npm run dev      # Start frontend server
+    start: npm run dev
   subdomain: eagle
 
 name: eagle
@@ -38,7 +38,7 @@ services:
     - name: my-mongo-db
       region: us-east-1
       type: mongo-atlas
-    - name: mongodarknet  # MongoDB for the backend
+    - name: mongodarknet  # This is your MongoDB database
       region: us-east-1
       type: mongo-atlas
 
