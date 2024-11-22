@@ -1,9 +1,9 @@
-import mongoose from "mongoose";
-import dotenv from "dotenv";
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
 
 dotenv.config();
 
-const mongoURI = process.env.MY_MONGO_DB_DATABASE_URL;
+const mongoURI = process.env.MONGODARKNET_DATABASE_URL;
 
 const connectDB = async () => {
   try {
@@ -11,9 +11,9 @@ const connectDB = async () => {
       useNewUrlParser: true,
       ssl: true,
     });
-    console.log("MongoDB connected");
+    console.log('MongoDB connected');
   } catch (err) {
-    console.error("Error connecting to MongoDB:", err);
+    console.error('Error connecting to MongoDB:', err);
     process.exit(1);
   }
 };

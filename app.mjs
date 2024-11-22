@@ -1,8 +1,8 @@
-import express from "express";
-import bodyParser from "body-parser";
-import { connectDB } from "./config.mjs";
-import dotenv from "dotenv";
-import userRoutes from "./routes/user.mjs";
+import express from 'express';
+import bodyParser from 'body-parser';
+import { connectDB } from './config.mjs';
+import dotenv from 'dotenv';
+import userRoutes from './routes/user.mjs';
 
 dotenv.config();
 
@@ -11,12 +11,19 @@ const port = process.env.PORT || 8080;
 
 // Middleware
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// API routes
+app.use('/api', userRoutes);
+
+// Serve static frontend
+app.use(express.static('frontend'));
 
 // Connect to MongoDB
 connectDB();
 
 // Routes
-app.use("/users", userRoutes);
+app.use('/users', userRoutes);
 
 // Start server
 app.listen(port, () => {
