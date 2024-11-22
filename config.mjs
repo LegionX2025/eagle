@@ -1,22 +1,34 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 
-dotenv.config(); // Load environment variables
+dotenv.config();
 
-// Connect to the first MongoDB database (Main Database)
-export const connectDB1 = () => {
-  return mongoose.connect(process.env.DATABASE_URL, {
-    // Use the main database URL
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
+const connectDB1 = async () => {
+  try {
+    const conn1 = await mongoose.createConnection(process.env.MY_MONGO_DB_DATABASE_URL, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log('Connected to MY_MONGO_DB_DATABASE_URL');
+    return conn1;
+  } catch (error) {
+    console.error('Error connecting to DB1:', error);
+    process.exit(1);
+  }
 };
 
-// Connect to the second MongoDB database (MongoDarknet Database)
-export const connectDB2 = () => {
-  return mongoose.connect(process.env.MONGODARKNET_DATABASE_URL, {
-    // Use the MongoDarknet database URL
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
+const connectDB2 = async () => {
+  try {
+    const conn2 = await mongoose.createConnection(process.env.MONGODARKNET_DATABASE_URL, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log('Connected to MONGODARKNET_DATABASE_URL');
+    return conn2;
+  } catch (error) {
+    console.error('Error connecting to DB2:', error);
+    process.exit(1);
+  }
 };
+
+export { connectDB1, connectDB2 };

@@ -1,13 +1,7 @@
 import express from 'express';
-import dotenv from 'dotenv';
-import { connectDB } from '../config.mjs';
-import ExtractedData from '../models/extractedData.mjs';
+import {connectDB2 } from '../config.mjs';
 
 const router = express.Router();
-dotenv.config();
-
-const { db } = await connectDB();
-const collection = db.collection('data_darknet');
 
 router.get('/search', async (req, res) => {
   const { query } = req.query;
@@ -17,11 +11,25 @@ router.get('/search', async (req, res) => {
   }
 
   try {
-    const results = await ExtractedData.find({
-      $text: { $search: query },
-    }).select(
-      'hash-ID web_info title description content financial_entity person_entity'
-    );
+    console.log('Received search query:', query);
+    
+    const collection = connectDB2.collection('data_darknet');
+    
+    // Log the database connection status
+    console.log('Database connection status:', connectDB2.readyState);
+
+    // Create a text index on all fields (if not already exists)
+    await collection.createIndex({ "$**": "text" });
+
+    const results = await collection.find(
+      { $text: { $search: query } },
+      { score: { $meta: "textScore" } }
+    )
+    .sort({ score: { $meta: "textScore" } })
+    .limit(20)
+    .toArray();
+
+    console.log('Search results:', results);
 
     if (results.length === 0) {
       return res.status(404).json({ message: 'No results found.' });
@@ -30,7 +38,7 @@ router.get('/search', async (req, res) => {
     res.json(results);
   } catch (error) {
     console.error('Error searching database:', error);
-    res.status(500).json({ message: 'Internal server error.' });
+    res.status(500).json({ message: 'Internal server error.', error: error.toString() });
   }
 });
 

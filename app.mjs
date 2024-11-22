@@ -1,37 +1,53 @@
 import express from 'express';
-import { connectDB1, connectDB2 } from './config.mjs'; // Import the database connection functions
-import userRoutes from './routes/user.mjs';
+import { MongoClient } from 'mongodb';
 import dotenv from 'dotenv';
 import cors from 'cors';
 
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 3000;
 
-// Middleware setup
-app.use(express.json());
+// Use your environment variable for the MongoDB URL
+const uri = process.env.MONGODARKNET_DATABASE_URL;
+
+// Middleware
 app.use(cors());
+app.use(express.json());
 
-// API Routes
-app.use('/api', userRoutes);
+// Search API
+app.get('/api/search', async (req, res) => {
+    const searchQuery = req.query.query;
+    
+    if (!searchQuery) {
+        return res.status(400).json({ error: 'Search query is required' });
+    }
 
-// Serve static files (for frontend)
-app.use(express.static('public'));
+    let client;
+    try {
+        // Connect to the MongoDB client
+        client = await MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+        const db = client.db('mongodarknet');
+        const collection = db.collection('data_darknet');
 
-// Connect to the databases
-connectDB1() // Connect to the main database first
-  .then(() => {
-    console.log('Connected to the main database!');
-    // Optionally, connect to the second database
-    return connectDB2(); // Connect to the second database (mongodarknet)
-  })
-  .then(() => {
-    console.log('Connected to the MongoDarknet database!');
-    app.listen(port, () => {
-      console.log(`Server is running on http://localhost:${port}`);
-    });
-  })
-  .catch((error) => {
-    console.error('Error connecting to the databases:', error);
-  });
+        // Perform the search query in MongoDB
+        const results = await collection.find({
+            $text: { $search: searchQuery }
+        }).limit(20).toArray();
+
+        res.json(results); // Send results as JSON, even if empty
+
+    } catch (error) {
+        console.error('Error fetching data from MongoDB:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    } finally {
+        if (client) {
+            await client.close();
+        }
+    }
+});
+
+// Start the server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});

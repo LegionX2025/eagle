@@ -1,33 +1,5 @@
 import mongoose from 'mongoose';
 
-// The User model
-const userSchema = new mongoose.Schema(
-  {
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      validate: {
-        validator: function (v) {
-          return /^\S+@\S+\.\S+$/.test(v);
-        },
-        message: (props) => `${props.value} is not a valid email!`,
-      },
-    },
-    name: {
-      type: String,
-      required: true,
-    },
-  },
-  {
-    timestamps: true,
-  }
-);
-
-// Create the User model
-const User = mongoose.model('User', userSchema);
-
-// The ExtractedData model
 const extractedDataSchema = new mongoose.Schema(
   {
     'hash-ID': { type: String, required: true, unique: true },
@@ -36,7 +8,7 @@ const extractedDataSchema = new mongoose.Schema(
       url: { type: String, required: true },
       title: { type: String },
       description: { type: String },
-      query_parameters: { type: Map, of: String }, // To store query parameters
+      query_parameters: { type: Map, of: String },
       content: { type: String },
       links: [{ type: String }], // List of other URLs found
     },
@@ -61,7 +33,13 @@ const extractedDataSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const ExtractedData = mongoose.model('ExtractedData', extractedDataSchema);
+// Create a text index on the fields to enable full-text search
+extractedDataSchema.index({
+  'web_info.title': 'text',
+  'web_info.description': 'text',
+  'web_info.content': 'text',
+  'person_entity.emails': 'text',
+  'person_entity.usernames': 'text',
+});
 
-// Named exports
-export { User, ExtractedData };
+const ExtractedData = mongoose.model('ExtractedData', extractedDataSchema);

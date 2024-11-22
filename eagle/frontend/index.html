@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Eagle Eye Search</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      /* Global Styles */
+      body {
+        background-color: #2a2f3a;
+        color: #e0e0e0;
+        font-family: 'Arial', sans-serif;
+      }
+
+      .navbar {
+        background-color: #1c1f2b;
+      }
+
+      .navbar-brand {
+        color: #00bcd4;
+        font-weight: bold;
+      }
+
+      .navbar-nav .nav-link {
+        color: #e0e0e0;
+      }
+
+      .navbar-nav .nav-link:hover {
+        color: #00bcd4;
+      }
+
+      .hero-section {
+        background: linear-gradient(135deg, #1d1f2b, #010957);
+        color: #e0e0e0;
+        padding: 100px 20px;
+        text-align: center;
+      }
+
+      .hero-section h1 {
+        font-size: 3rem;
+        color: #00bcd4;
+      }
+
+      .search-section {
+        padding: 50px 20px;
+        background-color: #21283d;
+      }
+
+      .search-section .form-control {
+        border: 1px solid #00bcd4;
+        background: #353f4b;
+        color: #e0e0e0;
+      }
+
+      .search-section .btn {
+        background-color: #00bcd4;
+        color: #fff;
+        border: none;
+      }
+
+      .results-section {
+        padding: 50px 20px;
+        background-color: #2a2f3a;
+      }
+
+      .result-card {
+        background: #353f4b;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+      }
+
+      .result-card a {
+        color: #00bcd4;
+      }
+
+      .result-card a:hover {
+        text-decoration: underline;
+      }
+
+      .footer {
+        background: #1c1f2b;
+        color: #777;
+        text-align: center;
+        padding: 20px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">Eagle Eye</a>
+      </div>
+    </nav>
+
+    <section class="hero-section">
+      <h1>Eagle Eye Search</h1>
+      <p>
+        Explore threats, blockchain transactions, and global intelligence data.
+      </p>
+    </section>
+
+    <section class="search-section">
+      <div class="container">
+        <h2 class="text-center">Search</h2>
+        <form id="search-form">
+          <div class="mb-3">
+            <input
+              type="text"
+              class="form-control"
+              id="search-query"
+              placeholder="Enter your search term"
+              required
+            />
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Search</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="results-section">
+      <div class="container">
+        <h2 class="text-center">Search Results</h2>
+        <div id="results-container"></div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>&copy; 2024 Eagle Eye. All Rights Reserved.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      document
+        .getElementById('search-form')
+        .addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const query = document.getElementById('search-query').value.trim();
+          const resultsContainer = document.getElementById('results-container');
+          resultsContainer.innerHTML = ''; // Clear previous results
+
+          try {
+            const response = await fetch(
+              `/api/search?query=${encodeURIComponent(query)}`
+            );
+            const data = await response.json();
+
+            if (data.length) {
+              data.forEach((item) => {
+                const resultCard = document.createElement('div');
+                resultCard.className = 'result-card';
+                resultCard.innerHTML = `
+                  <h5>${item.web_info.title || 'No Title'}</h5>
+                  <p>${item.web_info.description || 'No Description'}</p>
+                  <a href="${item.web_info.url}" target="_blank">${
+                  item.web_info.url
+                }</a>
+                  <p><strong>BTC Wallets:</strong> ${
+                    item.financial_entity.btc_wallets.join(', ') || 'None'
+                  }</p>
+                  <p><strong>ETH Wallets:</strong> ${
+                    item.financial_entity.eth_wallets.join(', ') || 'None'
+                  }</p>
+                  <p><strong>Emails:</strong> ${
+                    item.person_entity.emails.join(', ') || 'None'
+                  }</p>
+                  <p><strong>Usernames:</strong> ${
+                    item.person_entity.usernames.join(', ') || 'None'
+                  }</p>
+                  <p><strong>Phone Numbers:</strong> ${
+                    item.person_entity.phone_number.join(', ') || 'None'
+                  }</p>
+                `;
+                resultsContainer.appendChild(resultCard);
+              });
+            } else {
+              resultsContainer.innerHTML =
+                '<p class="text-center text-muted">No results found.</p>';
+            }
+          } catch (error) {
+            console.error('Error fetching search results:', error);
+            resultsContainer.innerHTML =
+              '<p class="text-center text-danger">An error occurred while searching.</p>';
+          }
+        });
+    </script>
+  </body>
+</html>
