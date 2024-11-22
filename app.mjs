@@ -1,33 +1,28 @@
 import express from 'express';
-import mongoose from 'mongoose';
-import dotenv from 'dotenv';
+import { connectDB1, connectDB2 } from './config.mjs';
 import userRoutes from './routes/user.mjs';
-import { searchDarknet } from './models/extractedData.mjs';
-
-dotenv.config();
+import dotenv from 'dotenv';
+import cors from 'cors';
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const port = process.env.PORT || 8080;
 
-mongoose
-  .connect(process.env.MY_MONGO_DB_DATABASE_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => console.log('Connected to User Database'))
-  .catch((err) => console.error('Database connection error:', err));
+// Connect to both databases
+connectDB1();
+connectDB2();
 
-mongoose
-  .connect(process.env.MONGODARKNET_DATABASE_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => console.log('Connected to Darknet Database'))
-  .catch((err) => console.error('Darknet connection error:', err));
-
+// Middleware
+app.use(cors());
 app.use(express.json());
-app.use('/api/users', userRoutes);
+app.use(express.urlencoded({ extended: true }));
 
-app.get('/api/search', searchDarknet);
+// API routes
+app.use('/api', userRoutes);
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Serve static frontend
+app.use(express.static('frontend'));
+
+// Start server
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+});

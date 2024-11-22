@@ -1,13 +1,15 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import { connectDB } from '../config.mjs';
-import ExtractedData from '../models/extractedData.mjs'; // Make sure you have the model for ExtractedData
+import User from '../models/user.mjs';
+import ExtractedData from '../models/extractedData.mjs';
 
 const router = express.Router();
 dotenv.config();
 
 const { db } = await connectDB(); // Assuming the native MongoDB driver
-// routes/user.mjs
+const collection = db.collection('data_darknet');
+
 router.get('/search', async (req, res) => {
   const { query } = req.query;
 
@@ -18,21 +20,9 @@ router.get('/search', async (req, res) => {
 
   try {
     console.log('Searching for:', query);
-
-    // Use a regex search across multiple fields (case-insensitive)
+    // Search across all fields in the extracted_data schema
     const results = await ExtractedData.find({
-      $or: [
-        { 'web_info.title': { $regex: query, $options: 'i' } },
-        { 'web_info.description': { $regex: query, $options: 'i' } },
-        { 'web_info.content': { $regex: query, $options: 'i' } },
-        { 'financial_entity.btc_wallets': { $regex: query, $options: 'i' } },
-        { 'financial_entity.eth_wallets': { $regex: query, $options: 'i' } },
-        { 'person_entity.emails': { $regex: query, $options: 'i' } },
-        { 'person_entity.usernames': { $regex: query, $options: 'i' } },
-        { 'person_entity.tox_ids': { $regex: query, $options: 'i' } },
-        { 'person_entity.ssi': { $regex: query, $options: 'i' } },
-        { 'person_entity.phone_number': { $regex: query, $options: 'i' } },
-      ],
+      $text: { $search: query },
     });
 
     if (results.length === 0) {
