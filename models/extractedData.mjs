@@ -33,6 +33,13 @@ const extractedDataSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Create a text index for fields you want to search on
+extractedDataSchema.index({
+  'web_info.url': 'text',
+  'web_info.title': 'text',
+  'web_info.content': 'text',
+});
+
 const ExtractedData = mongoose.model('ExtractedData', extractedDataSchema);
 
 export default ExtractedData;

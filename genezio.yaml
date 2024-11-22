@@ -15,8 +15,7 @@ backend:
 
 frontend:
   environment:
-    VITE_API_URL: ${{ backend.functions.express-mongo-starter.url }}
-    # If you need to expose environment variables to the frontend, you can do so here (e.g., database URLs for testing)
+    VITE_API_URL: ${{ backend.functions.express-mongo-starter.url }}  # Ensure this URL is correct
   path: ./frontend
   publish: ./dist
   scripts:
@@ -33,10 +32,8 @@ services:
     - name: my-mongo-db
       region: us-east-1
       type: mongo-atlas
-      # Add any necessary connection configurations for this database
     - name: mongodarknet  # New MongoDB database (MONGODARKNET_DATABASE_URL)
       region: us-east-1
       type: mongo-atlas
-      # Add any necessary connection configurations for this second database
 
 yamlVersion: 2

@@ -1,28 +1,25 @@
-import mongoose from 'mongoose';
+router.get('/search', async (req, res) => {
+  const { query } = req.query;
 
-const userSchema = new mongoose.Schema(
-  {
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      validate: {
-        validator: function (v) {
-          return /^\S+@\S+\.\S+$/.test(v);
-        },
-        message: (props) => `${props.value} is not a valid email!`,
-      },
-    },
-    name: {
-      type: String,
-      required: true,
-    },
-  },
-  {
-    timestamps: true,
+  if (!query) {
+    return res.status(400).json({ message: 'Query parameter is required.' });
   }
-);
 
-const User = mongoose.model('User', userSchema);
+  try {
+    console.log('Searching for:', query);
 
-export default User;
+    // Perform text search across indexed fields
+    const results = await ExtractedData.find({
+      $text: { $search: query },
+    });
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: 'No results found.' });
+    }
+
+    res.json(results);
+  } catch (error) {
+    console.error('Error searching database:', error);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
+});
