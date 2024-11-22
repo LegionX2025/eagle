@@ -19,7 +19,9 @@ router.get('/search', async (req, res) => {
   try {
     const results = await ExtractedData.find({
       $text: { $search: query },
-    });
+    }).select(
+      'hash-ID web_info title description content financial_entity person_entity'
+    );
 
     if (results.length === 0) {
       return res.status(404).json({ message: 'No results found.' });
