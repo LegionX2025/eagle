@@ -1,28 +1,35 @@
 import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import { connectDB1, connectDB2 } from './config.mjs';
+import { connectDB } from './config.mjs';
 import userRoutes from './routes/user.mjs';
+import dotenv from 'dotenv';
+import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-const cors = require('cors');
-app.use(cors());
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config();
 
 const app = express();
-dotenv.config();
+const port = process.env.PORT || 8080;
 
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Establish database connections
-connectDB1();
-connectDB2();
+// Connect to the database
+const dbConnection = await connectDB();
 
-// Routes
+// API routes
 app.use('/api', userRoutes);
 
-// Static Frontend
-app.use(express.static('frontend'));
+// Serve static frontend
+app.use(express.static(path.join(__dirname, '../frontend')));
 
-const port = process.env.PORT || 8080;
-app.listen(port, () => console.log(`Server running on port ${port}`));
+// Start server
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+});
+
+export { dbConnection };
