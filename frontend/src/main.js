@@ -1,3 +1,6 @@
+const cors = require('cors');
+app.use(cors());
+
 const API_URL = import.meta.env.VITE_API_URL; // Backend API base URL
 
 // Handle Signup Form Submission

@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+const cors = require('cors');
+app.use(cors());
 
 dotenv.config();
 

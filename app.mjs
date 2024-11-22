@@ -4,6 +4,9 @@ import dotenv from 'dotenv';
 import { connectDB1, connectDB2 } from './config.mjs';
 import userRoutes from './routes/user.mjs';
 
+const cors = require('cors');
+app.use(cors());
+
 const app = express();
 dotenv.config();
 
