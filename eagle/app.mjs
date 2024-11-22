@@ -22,14 +22,8 @@ app.use(express.json());
 // Serve static files from the frontend directory
 app.use(express.static(path.join(__dirname, 'frontend')));
 
-// Search API
-app.get('/api/search', async (req, res) => {
-  const searchQuery = req.query.query;
-
-  if (!searchQuery) {
-    return res.status(400).json({ error: 'Search query is required' });
-  }
-
+// Fetch all data API
+app.get('/api/fetchall', async (req, res) => {
   let client;
   try {
     // Connect to the MongoDB client
@@ -40,13 +34,8 @@ app.get('/api/search', async (req, res) => {
     const db = client.db('mongodarknet');
     const collection = db.collection('data_darknet');
 
-    // Perform the search query in MongoDB
-    const results = await collection
-      .find({
-        $text: { $search: searchQuery },
-      })
-      .limit(20)
-      .toArray();
+    // Fetch all documents, limit to 100 for performance
+    const results = await collection.find({}).limit(100).toArray();
 
     res.json({ success: true, data: results });
   } catch (error) {
