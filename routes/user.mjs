@@ -1,33 +1,29 @@
 import express from 'express';
-import mongoose from 'mongoose';
+import User from '../models/user.mjs';
 
 const router = express.Router();
 
-router.get('/search', async (req, res) => {
-  const { query } = req.query;
+router.get('/', async (req, res) => {
+  const users = await User.find();
+  res.send(users);
+});
 
-  if (!query) {
-    return res.status(400).json({ message: 'Query parameter is required.' });
-  }
+router.post('/', async (req, res) => {
+  const newUser = new User(req.body);
+  await newUser.save();
+  res.status(201).send(newUser);
+});
 
-  try {
-    const collection = mongoose.connection.db.collection('data_darknet');
+router.put('/:id', async (req, res) => {
+  const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+  });
+  res.send(updatedUser);
+});
 
-    const results = await collection
-      .find({ $text: { $search: query } }, { score: { $meta: 'textScore' } })
-      .sort({ score: { $meta: 'textScore' } })
-      .limit(10)
-      .toArray();
-
-    if (results.length === 0) {
-      return res.status(404).json({ message: 'No results found.' });
-    }
-
-    res.json(results);
-  } catch (error) {
-    console.error('Error searching database:', error);
-    res.status(500).json({ message: 'Internal server error.' });
-  }
+router.delete('/:id', async (req, res) => {
+  await User.findByIdAndDelete(req.params.id);
+  res.status(204).send();
 });
 
 export default router;

@@ -21,11 +21,13 @@ const connectDB1 = async () => {
 
 const connectDB2 = async () => {
   try {
-    await mongoose.connect(mongoURI2, {
+    const connection = await mongoose.createConnection(mongoURI2, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
+      ssl: true, // If SSL is required
     });
     console.log('Connected to MONGODARKNET_DATABASE_URL');
+    return connection; // Return the connection object
   } catch (err) {
     console.error('Error connecting to MONGODARKNET_DATABASE_URL:', err);
     process.exit(1);

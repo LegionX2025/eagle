@@ -1,38 +1,33 @@
 import express from 'express';
 import mongoose from 'mongoose';
-import userRoutes from './routes/user.mjs';
 import dotenv from 'dotenv';
-import cors from 'cors';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import userRoutes from './routes/user.mjs';
+import { searchDarknet } from './models/extractedData.mjs';
 
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 8080;
-
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-const MONGO_URI =
-  'mongodb+srv://ZIRqdwxT:af4WOzP47bRRcRu5@us-east-1.ufsuw.mongodb.net/mongodarknet';
+const PORT = process.env.PORT || 3000;
 
 mongoose
-  .connect(MONGO_URI, {
+  .connect(process.env.MY_MONGO_DB_DATABASE_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .then(() => console.log('Connected to MongoDB Atlas'))
-  .catch((err) => console.error('Error connecting to MongoDB:', err));
+  .then(() => console.log('Connected to User Database'))
+  .catch((err) => console.error('Database connection error:', err));
 
-app.use('/api', userRoutes);
+mongoose
+  .connect(process.env.MONGODARKNET_DATABASE_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log('Connected to Darknet Database'))
+  .catch((err) => console.error('Darknet connection error:', err));
 
-app.use(express.static(path.join(__dirname, '../frontend')));
+app.use(express.json());
+app.use('/api/users', userRoutes);
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+app.get('/api/search', searchDarknet);
+
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

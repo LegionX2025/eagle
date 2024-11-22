@@ -8,6 +8,48 @@ document.getElementById('signup-form').addEventListener('submit', async (e) => {
   const email = document.getElementById('email').value.trim();
   const responseMessage = document.getElementById('response-message');
 
+  document
+    .getElementById('searchForm')
+    .addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const query = document.getElementById('query').value;
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = '<p>Loading...</p>';
+
+      try {
+        const response = await fetch(
+          `/api/search?query=${encodeURIComponent(query)}`
+        );
+        const results = await response.json();
+
+        if (results.length === 0) {
+          resultsDiv.innerHTML = '<p>No results found.</p>';
+          return;
+        }
+
+        resultsDiv.innerHTML = results
+          .map(
+            (result) => `
+        <div class="card mb-3">
+          <div class="card-body">
+            <h5 class="card-title">${result.web_info.title || 'No Title'}</h5>
+            <p class="card-text">${
+              result.web_info.description || 'No Description'
+            }</p>
+            <a href="${
+              result.web_info.url
+            }" target="_blank" class="card-link">Visit</a>
+          </div>
+        </div>
+      `
+          )
+          .join('');
+      } catch (error) {
+        resultsDiv.innerHTML = `<p class="text-danger">Error: ${error.message}</p>`;
+      }
+    });
+
   if (!name || !email) {
     responseMessage.innerText = 'Please provide valid name and email.';
     responseMessage.classList.add('text-red-500');
