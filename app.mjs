@@ -1,5 +1,5 @@
 import express from 'express';
-import { connectDB1, connectDB2 } from './config.mjs';
+import mongoose from 'mongoose';
 import userRoutes from './routes/user.mjs';
 import dotenv from 'dotenv';
 import cors from 'cors';
@@ -18,19 +18,21 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Connect to the database
-const dbConnection1 = await connectDB1();
-const dbConnection2 = await connectDB2();
+const MONGO_URI =
+  'mongodb+srv://ZIRqdwxT:af4WOzP47bRRcRu5@us-east-1.ufsuw.mongodb.net/mongodarknet';
 
-// API routes
+mongoose
+  .connect(MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log('Connected to MongoDB Atlas'))
+  .catch((err) => console.error('Error connecting to MongoDB:', err));
+
 app.use('/api', userRoutes);
 
-// Serve static frontend
 app.use(express.static(path.join(__dirname, '../frontend')));
 
-// Start server
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
-
-export { dbConnection1, dbConnection2 };

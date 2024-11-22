@@ -154,47 +154,45 @@
         </div>
       </section>
       <script>
-        document
-          .getElementById('search-form')
-          .addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const query = document.getElementById('search-query').value.trim();
-            const resultsContainer = document.getElementById('results-container');
-            resultsContainer.innerHTML = ''; // Clear previous results
+        const API_URL = 'https://eagle.app.genez.io/api'; // 确保这是正确的API URL
       
-            try {
-              const response = await fetch(
-                `/api/search?query=${encodeURIComponent(query)}`
-              );
-              const data = await response.json();
+        document.getElementById('search-form').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const query = document.getElementById('search-query').value.trim();
+          const resultsContainer = document.getElementById('results-container');
+          resultsContainer.innerHTML = '<p class="text-center">Searching...</p>';
       
-              if (data.length) {
-                data.forEach((item) => {
-                  const resultCard = document.createElement('div');
-                  resultCard.className = 'result-card';
-                  resultCard.innerHTML = `
-                    <h5>${item.web_info.title || 'No Title'}</h5>
-                    <p>${item.web_info.description || 'No Description'}</p>
-                    <a href="${item.web_info.url}" target="_blank">${item.web_info.url}</a>
-                    <p><strong>BTC Wallets:</strong> ${item.financial_entity.btc_wallets.join(', ')}</p>
-                    <p><strong>ETH Wallets:</strong> ${item.financial_entity.eth_wallets.join(', ')}</p>
-                    <p><strong>Emails:</strong> ${item.person_entity.emails.join(', ')}</p>
-                    <p><strong>Usernames:</strong> ${item.person_entity.usernames.join(', ')}</p>
-                    <p><strong>Phone Numbers:</strong> ${item.person_entity.phone_number.join(', ')}</p>
-                  `;
-                  resultsContainer.appendChild(resultCard);
-                });
-              } else {
-                resultsContainer.innerHTML =
-                  '<p class="text-center text-muted">No results found.</p>';
-              }
-            } catch (error) {
-              console.error('Error fetching search results:', error);
-              resultsContainer.innerHTML =
-                '<p class="text-center text-danger">An error occurred while searching.</p>';
+          try {
+            const response = await fetch(`${API_URL}/search?query=${encodeURIComponent(query)}`);
+            const data = await response.json();
+      
+            if (response.ok && data.length) {
+              resultsContainer.innerHTML = '';
+              data.forEach((item) => {
+                const resultCard = document.createElement('div');
+                resultCard.className = 'result-card';
+                resultCard.innerHTML = `
+                  <h5>${item.web_info?.title || 'No Title'}</h5>
+                  <p>${item.web_info?.description || 'No Description'}</p>
+                  <a href="${item.web_info?.url}" target="_blank">${item.web_info?.url || 'No URL'}</a>
+                  <p><strong>BTC Wallets:</strong> ${item.financial_entity?.btc_wallets?.join(', ') || 'None'}</p>
+                  <p><strong>ETH Wallets:</strong> ${item.financial_entity?.eth_wallets?.join(', ') || 'None'}</p>
+                  <p><strong>Emails:</strong> ${item.person_entity?.emails?.join(', ') || 'None'}</p>
+                  <p><strong>Usernames:</strong> ${item.person_entity?.usernames?.join(', ') || 'None'}</p>
+                  <p><strong>Phone Numbers:</strong> ${item.person_entity?.phone_number?.join(', ') || 'None'}</p>
+                `;
+                resultsContainer.appendChild(resultCard);
+              });
+            } else {
+              resultsContainer.innerHTML = '<p class="text-center text-muted">No results found.</p>';
             }
-          });
+          } catch (error) {
+            console.error('Error fetching search results:', error);
+            resultsContainer.innerHTML = '<p class="text-center text-danger">An error occurred while searching.</p>';
+          }
+        });
       </script>
+      
       <section class="results-section">
         <div class="container">
           <h2 class="text-center">Search Results</h2>
