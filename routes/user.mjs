@@ -1,8 +1,7 @@
 import express from 'express';
-import User from '../models/user.mjs';
 import dotenv from 'dotenv';
-import connectDB from '../config.mjs';
-import bodyParser from 'body-parser';
+import { connectDB } from '../config.mjs';
+import User from '../models/user.mjs';
 
 const router = express.Router();
 dotenv.config();
