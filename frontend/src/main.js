@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL_EXPRESS_MONGO_STARTER; // Backend API base URL
+const API_URL = import.meta.env.VITE_API_URL; // Backend API base URL
 
 // Handle Signup Form Submission
 document.getElementById('signup-form').addEventListener('submit', async (e) => {
