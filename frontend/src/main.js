@@ -60,53 +60,54 @@ document.getElementById('search-form').addEventListener('submit', async (e) => {
     if (contentType && contentType.includes('application/json')) {
       try {
         const data = JSON.parse(responseText);
-
-        if (response.ok && data.length) {
-          resultsContainer.innerHTML = ''; // Clear loading text
-          data.forEach((item) => {
-            const resultCard = document.createElement('div');
-            resultCard.className = 'result-card fade-in';
-
-            resultCard.innerHTML = `
-              <h5>${item.web_info?.title || 'No Title'}</h5>
-              <p>${item.web_info?.description || 'No Description'}</p>
-              <a href="${item.web_info?.url}" target="_blank">${
-              item.web_info?.url || 'No URL'
-            }</a>
-              <p><strong>BTC Wallets:</strong> ${
-                item.financial_entity?.btc_wallets?.join(', ') || 'None'
-              }</p>
-              <p><strong>ETH Wallets:</strong> ${
-                item.financial_entity?.eth_wallets?.join(', ') || 'None'
-              }</p>
-              <p><strong>Emails:</strong> ${
-                item.person_entity?.emails?.join(', ') || 'None'
-              }</p>
-              <p><strong>Usernames:</strong> ${
-                item.person_entity?.usernames?.join(', ') || 'None'
-              }</p>
-              <p><strong>Phone Numbers:</strong> ${
-                item.person_entity?.phone_number?.join(', ') || 'None'
-              }</p>
-            `;
-            resultsContainer.appendChild(resultCard);
-          });
-        } else {
-          resultsContainer.innerHTML = `<p class="text-center text-muted">No results found. Status: ${response.status}</p>`;
-        }
-      } catch (parseError) {
-        console.error('Error parsing JSON:', parseError);
-        resultsContainer.innerHTML = `<p class="text-center text-danger">Error parsing response: ${responseText.slice(
-          0,
-          100
-        )}...</p>`;
-      }
-    } else {
-      console.error('Unexpected response type:', contentType);
-      resultsContainer.innerHTML = `<p class="text-center text-danger">Unexpected response format.</p>`;
-    }
-  } catch (error) {
-    console.error('Error fetching search results:', error);
-    resultsContainer.innerHTML = `<p class="text-center text-danger">An error occurred while searching: ${error.message}</p>`;
-  }
-});
+        document.getElementById('search-form').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const query = document.getElementById('search-query').value.trim();
+          const resultsContainer = document.getElementById('results-container');
+          resultsContainer.innerHTML = '<p class="loading">Searching...</p>';
+      
+          try {
+              const response = await fetch(`/api/search?query=${encodeURIComponent(query)}`);
+              console.log('Response status:', response.status);
+              console.log('Response headers:', response.headers);
+      
+              const responseText = await response.text();
+              console.log('Raw response:', responseText);
+      
+              let data;
+              try {
+                  data = JSON.parse(responseText);
+              } catch (parseError) {
+                  console.error('Error parsing JSON:', parseError);
+                  resultsContainer.innerHTML = `<p class="text-center text-danger">Error parsing response: ${responseText.slice(0, 100)}...</p>`;
+                  return;
+              }
+      
+              console.log('Parsed data:', data);
+      
+              if (Array.isArray(data) && data.length > 0) {
+                  resultsContainer.innerHTML = '';
+                  data.forEach((item) => {
+                      const resultCard = document.createElement('div');
+                      resultCard.className = 'result-card fade-in';
+                      resultCard.innerHTML = `
+                          <h5>${item.web_info?.title || 'No Title'}</h5>
+                          <p>${item.web_info?.description || 'No Description'}</p>
+                          <a href="${item.web_info?.url}" target="_blank">${item.web_info?.url || 'No URL'}</a>
+                          <p><strong>BTC Wallets:</strong> ${item.financial_entity?.btc_wallets?.join(', ') || 'None'}</p>
+                          <p><strong>ETH Wallets:</strong> ${item.financial_entity?.eth_wallets?.join(', ') || 'None'}</p>
+                          <p><strong>Emails:</strong> ${item.person_entity?.emails?.join(', ') || 'None'}</p>
+                          <p><strong>Usernames:</strong> ${item.person_entity?.usernames?.join(', ') || 'None'}</p>
+                          <p><strong>Phone Numbers:</strong> ${item.person_entity?.phone_number?.join(', ') || 'None'}</p>
+                      `;
+                      resultsContainer.appendChild(resultCard);
+                  });
+              } else {
+                  resultsContainer.innerHTML = `<p class="text-center text-muted">No results found.</p>`;
+              }
+          } catch (error) {
+              console.error('Error fetching search results:', error);
+              resultsContainer.innerHTML = `<p class="text-center text-danger">An error occurred while searching: ${error.message}</p>`;
+          }
+      });
+      

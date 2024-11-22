@@ -52,58 +52,57 @@ document.getElementById('search-form').addEventListener('submit', async (e) => {
     const response = await fetch(
       `/api/search?query=${encodeURIComponent(query)}`
     );
+    console.log('Response status:', response.status);
+    console.log('Response headers:', response.headers);
 
-    // Check if the response is in JSON format
-    const contentType = response.headers.get('Content-Type');
-    let responseText = await response.text(); // Read raw text
+    const responseText = await response.text();
+    console.log('Raw response:', responseText);
 
-    if (contentType && contentType.includes('application/json')) {
-      try {
-        const data = JSON.parse(responseText);
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch (parseError) {
+      console.error('Error parsing JSON:', parseError);
+      resultsContainer.innerHTML = `<p class="text-center text-danger">Error parsing response: ${responseText.slice(
+        0,
+        100
+      )}...</p>`;
+      return;
+    }
 
-        if (response.ok && data.length) {
-          resultsContainer.innerHTML = ''; // Clear loading text
-          data.forEach((item) => {
-            const resultCard = document.createElement('div');
-            resultCard.className = 'result-card fade-in';
+    console.log('Parsed data:', data);
 
-            resultCard.innerHTML = `
-              <h5>${item.web_info?.title || 'No Title'}</h5>
-              <p>${item.web_info?.description || 'No Description'}</p>
-              <a href="${item.web_info?.url}" target="_blank">${
-              item.web_info?.url || 'No URL'
-            }</a>
-              <p><strong>BTC Wallets:</strong> ${
-                item.financial_entity?.btc_wallets?.join(', ') || 'None'
-              }</p>
-              <p><strong>ETH Wallets:</strong> ${
-                item.financial_entity?.eth_wallets?.join(', ') || 'None'
-              }</p>
-              <p><strong>Emails:</strong> ${
-                item.person_entity?.emails?.join(', ') || 'None'
-              }</p>
-              <p><strong>Usernames:</strong> ${
-                item.person_entity?.usernames?.join(', ') || 'None'
-              }</p>
-              <p><strong>Phone Numbers:</strong> ${
-                item.person_entity?.phone_number?.join(', ') || 'None'
-              }</p>
-            `;
-            resultsContainer.appendChild(resultCard);
-          });
-        } else {
-          resultsContainer.innerHTML = `<p class="text-center text-muted">No results found. Status: ${response.status}</p>`;
-        }
-      } catch (parseError) {
-        console.error('Error parsing JSON:', parseError);
-        resultsContainer.innerHTML = `<p class="text-center text-danger">Error parsing response: ${responseText.slice(
-          0,
-          100
-        )}...</p>`;
-      }
+    if (Array.isArray(data) && data.length > 0) {
+      resultsContainer.innerHTML = '';
+      data.forEach((item) => {
+        const resultCard = document.createElement('div');
+        resultCard.className = 'result-card fade-in';
+        resultCard.innerHTML = `
+                  <h5>${item.web_info?.title || 'No Title'}</h5>
+                  <p>${item.web_info?.description || 'No Description'}</p>
+                  <a href="${item.web_info?.url}" target="_blank">${
+          item.web_info?.url || 'No URL'
+        }</a>
+                  <p><strong>BTC Wallets:</strong> ${
+                    item.financial_entity?.btc_wallets?.join(', ') || 'None'
+                  }</p>
+                  <p><strong>ETH Wallets:</strong> ${
+                    item.financial_entity?.eth_wallets?.join(', ') || 'None'
+                  }</p>
+                  <p><strong>Emails:</strong> ${
+                    item.person_entity?.emails?.join(', ') || 'None'
+                  }</p>
+                  <p><strong>Usernames:</strong> ${
+                    item.person_entity?.usernames?.join(', ') || 'None'
+                  }</p>
+                  <p><strong>Phone Numbers:</strong> ${
+                    item.person_entity?.phone_number?.join(', ') || 'None'
+                  }</p>
+              `;
+        resultsContainer.appendChild(resultCard);
+      });
     } else {
-      console.error('Unexpected response type:', contentType);
-      resultsContainer.innerHTML = `<p class="text-center text-danger">Unexpected response format.</p>`;
+      resultsContainer.innerHTML = `<p class="text-center text-muted">No results found.</p>`;
     }
   } catch (error) {
     console.error('Error fetching search results:', error);
