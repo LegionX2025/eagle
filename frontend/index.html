@@ -16,28 +16,28 @@
         font-family: 'Arial', sans-serif;
       }
 
-      /* Navbar */
-      .navbar {
+      header,
+      footer {
         background-color: #1c1f2b;
       }
 
+      /* Navbar */
       .navbar-brand {
         color: #00bcd4;
         font-weight: bold;
       }
 
-      .navbar-nav .nav-link {
+      .nav-link {
         color: #e0e0e0;
       }
 
-      .navbar-nav .nav-link:hover {
+      .nav-link:hover {
         color: #00bcd4;
       }
 
       /* Hero Section */
       .hero-section {
         background: linear-gradient(135deg, #1d1f2b, #010957);
-        color: #e0e0e0;
         padding: 100px 20px;
         text-align: center;
       }
@@ -47,41 +47,31 @@
         color: #00bcd4;
       }
 
-      .hero-section p {
-        margin: 20px 0;
-      }
-
       /* Search Form Section */
       .search-section {
         padding: 50px 20px;
         background-color: #21283d;
       }
 
-      .search-section .form-control {
+      .form-control {
         border: 1px solid #00bcd4;
         background: #353f4b;
         color: #e0e0e0;
       }
 
-      .search-section .btn {
+      .btn {
         background-color: #00bcd4;
         color: #fff;
         border: none;
       }
 
-      .search-section .btn:hover {
+      .btn:hover {
         background-color: #0288d1;
       }
 
       /* Results Section */
       .results-section {
         padding: 50px 20px;
-        background-color: #2a2f3a;
-      }
-
-      .results-section h2 {
-        color: #00bcd4;
-        margin-bottom: 30px;
       }
 
       .result-card {
@@ -100,79 +90,87 @@
         text-decoration: underline;
       }
 
-      /* Footer */
-      .footer {
-        background: #1c1f2b;
-        color: #777;
+      .loading {
         text-align: center;
+        font-style: italic;
+      }
+
+      footer {
+        text-align: center;
+        color: #777;
         padding: 20px;
       }
     </style>
   </head>
-
   <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="#">Eagle Eye</a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ms-auto">
-            <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
-            <li class="nav-item"><a class="nav-link" href="#">Search</a></li>
-            <li class="nav-item"><a class="nav-link" href="#">About</a></li>
-          </ul>
+    <header>
+      <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="#">Eagle Eye</a>
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNav"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+              <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
+              <li class="nav-item"><a class="nav-link" href="#">Search</a></li>
+              <li class="nav-item"><a class="nav-link" href="#">About</a></li>
+            </ul>
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+    </header>
 
     <!-- Hero Section -->
-    <section class="hero-section">
-      <h1>Eagle Eye Search</h1>
-      <p>
-        Effortlessly explore threats, blockchain transactions, and global
-        intelligence data.
-      </p>
-    </section>
+    <main>
+      <section class="hero-section">
+        <h1>Eagle Eye Search</h1>
+        <p>
+          Effortlessly explore threats, blockchain transactions, and global
+          intelligence data.
+        </p>
+      </section>
 
-    <!-- Search Section -->
-    <section class="search-section">
-      <div class="container">
-        <h2 class="text-center">Search</h2>
-        <form id="search-form">
-          <div class="mb-3">
-            <input
-              type="text"
-              class="form-control"
-              id="search-query"
-              placeholder="Enter your search term"
-              required
-            />
-          </div>
-          <button type="submit" class="btn btn-primary w-100">Search</button>
-        </form>
-      </div>
-    </section>
-
-    <!-- Results Section -->
-    <section class="results-section">
-      <div class="container">
-        <h2 class="text-center">Search Results</h2>
-        <div id="results-container">
-          <!-- Results will be dynamically inserted here -->
+      <!-- Search Section -->
+      <section class="search-section">
+        <div class="container">
+          <h2 class="text-center">Search</h2>
+          <form id="search-form">
+            <div class="mb-3">
+              <input
+                type="text"
+                class="form-control"
+                id="search-query"
+                placeholder="Enter your search term"
+                aria-label="Search input"
+                required
+              />
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Search</button>
+          </form>
+          <p class="loading d-none">Loading...</p>
         </div>
-      </div>
-    </section>
+      </section>
+
+      <!-- Results Section -->
+      <section class="results-section">
+        <div class="container">
+          <h2 class="text-center">Search Results</h2>
+          <div id="results-container">
+            <!-- Results will be dynamically inserted here -->
+          </div>
+        </div>
+      </section>
+    </main>
 
     <!-- Footer -->
-    <footer class="footer">
+    <footer>
       <p>&copy; 2024 Eagle Eye. All Rights Reserved.</p>
     </footer>
 
@@ -183,7 +181,10 @@
           e.preventDefault();
           const query = document.getElementById('search-query').value.trim();
           const resultsContainer = document.getElementById('results-container');
-          resultsContainer.innerHTML = ''; // Clear previous results
+          const loadingIndicator = document.querySelector('.loading');
+
+          resultsContainer.innerHTML = '';
+          loadingIndicator.classList.remove('d-none');
 
           try {
             const response = await fetch(
@@ -191,32 +192,33 @@
             );
             const data = await response.json();
 
+            loadingIndicator.classList.add('d-none');
             if (data.length) {
               data.forEach((item) => {
                 const resultCard = document.createElement('div');
                 resultCard.className = 'result-card';
                 resultCard.innerHTML = `
-                  <h5>${item.web_info.title || 'No Title'}</h5>
-                  <p>${item.web_info.description || 'No Description'}</p>
-                  <a href="${item.web_info.url}" target="_blank">${
+              <h5>${item.web_info.title || 'No Title'}</h5>
+              <p>${item.web_info.description || 'No Description'}</p>
+              <a href="${item.web_info.url}" target="_blank">${
                   item.web_info.url
                 }</a>
-                  <p><strong>BTC Wallets:</strong> ${item.financial_entity.btc_wallets.join(
-                    ', '
-                  )}</p>
-                  <p><strong>ETH Wallets:</strong> ${item.financial_entity.eth_wallets.join(
-                    ', '
-                  )}</p>
-                  <p><strong>Emails:</strong> ${item.person_entity.emails.join(
-                    ', '
-                  )}</p>
-                  <p><strong>Usernames:</strong> ${item.person_entity.usernames.join(
-                    ', '
-                  )}</p>
-                  <p><strong>Phone Numbers:</strong> ${item.person_entity.phone_number.join(
-                    ', '
-                  )}</p>
-                `;
+              <p><strong>BTC Wallets:</strong> ${item.financial_entity.btc_wallets.join(
+                ', '
+              )}</p>
+              <p><strong>ETH Wallets:</strong> ${item.financial_entity.eth_wallets.join(
+                ', '
+              )}</p>
+              <p><strong>Emails:</strong> ${item.person_entity.emails.join(
+                ', '
+              )}</p>
+              <p><strong>Usernames:</strong> ${item.person_entity.usernames.join(
+                ', '
+              )}</p>
+              <p><strong>Phone Numbers:</strong> ${item.person_entity.phone_number.join(
+                ', '
+              )}</p>
+            `;
                 resultsContainer.appendChild(resultCard);
               });
             } else {
@@ -225,12 +227,12 @@
             }
           } catch (error) {
             console.error('Error fetching search results:', error);
+            loadingIndicator.classList.add('d-none');
             resultsContainer.innerHTML =
               '<p class="text-center text-danger">An error occurred while searching.</p>';
           }
         });
     </script>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
   </body>
 </html>
