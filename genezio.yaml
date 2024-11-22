@@ -16,7 +16,7 @@ backend:
       npm install
       npm run dev    # Start in development mode
   environment:
-    DATABASE_URL: ${{ services.databases.mongodarknet.url }}  # Directly reference the database URL
+    DATABASE_URL: ${{ services.databases.mongodarknet.uri }}  # Use uri instead of url
   subdomain: eagle
 
 frontend:
@@ -35,8 +35,12 @@ region: us-east-1
 
 services:
   databases:
-    - name: mongodarknet  # This is your MongoDB database
+    - name: my-mongo-db
       region: us-east-1
       type: mongo-atlas
+    - name: mongodarknet  # Your MongoDB database
+      region: us-east-1
+      type: mongo-atlas
+      uri: mongodb+srv://ZIRqdwxT:af4WOzP47bRRcRu5@us-east-1.ufsuw.mongodb.net/mongodarknet  # Use uri here
 
 yamlVersion: 2
