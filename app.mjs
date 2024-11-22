@@ -1,31 +1,25 @@
 import express from 'express';
-import { connectDB1, connectDB2 } from './config.mjs'; // Import both connection functions
-import userRoutes from './routes/user.mjs';
-import dotenv from 'dotenv';
 import cors from 'cors';
-
-app.use(cors());
-
-dotenv.config();
+import dotenv from 'dotenv';
+import { connectDB1, connectDB2 } from './config.mjs';
+import userRoutes from './routes/user.mjs';
 
 const app = express();
-const port = process.env.PORT || 8080;
+dotenv.config();
 
-// Connect to both databases
-connectDB1();
-connectDB2();
-
-// Middleware
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// API routes
+// Establish database connections
+connectDB1();
+connectDB2();
+
+// Routes
 app.use('/api', userRoutes);
 
-// Serve static frontend
+// Static Frontend
 app.use(express.static('frontend'));
 
-// Start server
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+const port = process.env.PORT || 8080;
+app.listen(port, () => console.log(`Server running on port ${port}`));

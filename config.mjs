@@ -1,44 +1,30 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import cors from 'cors';
 
-app.use(cors());
+dotenv.config();
 
-dotenv.config(); // Load environment variables from .env file
-
-// Connection URLs
-const mongoURI1 = process.env.MY_MONGO_DB_DATABASE_URL;
-const mongoURI2 = process.env.MONGODARKNET_DATABASE_URL;
-
-// Connect to the first MongoDB database
 const connectDB1 = async () => {
   try {
-    await mongoose.connect(mongoURI1, {
+    await mongoose.createConnection(process.env.MY_MONGO_DB_DATABASE_URL, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      ssl: true, // If you're using SSL
     });
     console.log('Connected to MY_MONGO_DB_DATABASE_URL');
-  } catch (err) {
-    console.error('Error connecting to MY_MONGO_DB_DATABASE_URL:', err);
-    process.exit(1);
+  } catch (error) {
+    console.error('Error connecting to DB1:', error);
   }
 };
 
-// Connect to the second MongoDB database
 const connectDB2 = async () => {
   try {
-    await mongoose.connect(mongoURI2, {
+    await mongoose.createConnection(process.env.MONGODARKNET_DATABASE_URL, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      ssl: true, // If you're using SSL
     });
     console.log('Connected to MONGODARKNET_DATABASE_URL');
-  } catch (err) {
-    console.error('Error connecting to MONGODARKNET_DATABASE_URL:', err);
-    process.exit(1);
+  } catch (error) {
+    console.error('Error connecting to DB2:', error);
   }
 };
 
-// Export both connections
 export { connectDB1, connectDB2 };

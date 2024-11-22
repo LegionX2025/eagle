@@ -41,74 +41,38 @@ document.getElementById('signup-form').addEventListener('submit', async (e) => {
   document.getElementById('signup-form').reset(); // Reset the form fields
 });
 
-// Handle Search Form Submission
 document.getElementById('search-form').addEventListener('submit', async (e) => {
   e.preventDefault();
+  const query = document.getElementById('search-query').value.trim();
+  const resultsContainer = document.getElementById('results-container');
 
-  const query = document.getElementById('query').value.trim();
-  const responseMessage = document.getElementById('response-message');
-
-  if (!query) {
-    responseMessage.innerHTML =
-      '<p class="text-red-500">Please enter a valid search query.</p>';
-    return;
-  }
+  resultsContainer.innerHTML = 'Loading...';
 
   try {
     const response = await fetch(
       `${API_URL}/search?query=${encodeURIComponent(query)}`
     );
-    const data = await response.json();
+    const results = await response.json();
 
-    if (response.ok && data.length) {
-      responseMessage.innerHTML = `
-          <h3 class="text-xl font-bold mb-4 text-gray-800">Search Results:</h3>
-          <ul class="list-disc list-inside space-y-4">
-            ${data
-              .map(
-                (item) => `
-                  <li class="text-gray-700">
-                    <strong>Hash-ID:</strong> ${item['hash-ID']}<br>
-                    <strong>URL:</strong> <a href="${
-                      item.web_info.url
-                    }" target="_blank" class="text-blue-500 underline">${
-                  item.web_info.url
-                }</a><br>
-                    <strong>Title:</strong> ${item.web_info.title || 'N/A'}<br>
-                    <strong>Description:</strong> ${
-                      item.web_info.description || 'N/A'
-                    }<br>
-                    <strong>Content:</strong> ${item.web_info.content
-                      .slice(0, 100)
-                      .trim()}...<br>
-                    <strong>BTC Wallets:</strong> ${
-                      item.financial_entity.btc_wallets.join(', ') || 'None'
-                    }<br>
-                    <strong>ETH Wallets:</strong> ${
-                      item.financial_entity.eth_wallets.join(', ') || 'None'
-                    }<br>
-                    <strong>Emails:</strong> ${
-                      item.person_entity.emails.join(', ') || 'None'
-                    }<br>
-                    <strong>SSIs:</strong> ${
-                      item.person_entity.ssi.join(', ') || 'None'
-                    }<br>
-                    <strong>Phone Numbers:</strong> ${
-                      item.person_entity.phone_number.join(', ') || 'None'
-                    }
-                  </li>
-                `
-              )
-              .join('')}
-          </ul>
-        `;
+    if (results.length) {
+      resultsContainer.innerHTML = results
+        .map(
+          (item) => `
+          <div class="result-card">
+            <h3>${item.web_info.title || 'No Title'}</h3>
+            <p>${item.web_info.description || 'No Description'}</p>
+            <a href="${item.web_info.url}" target="_blank">${
+            item.web_info.url
+          }</a>
+          </div>
+        `
+        )
+        .join('');
     } else {
-      responseMessage.innerHTML =
-        '<p class="text-red-500">No results found.</p>';
+      resultsContainer.innerHTML = '<p>No results found.</p>';
     }
   } catch (error) {
-    console.error('Search error:', error);
-    responseMessage.innerHTML =
-      '<p class="text-red-500">Error fetching results. Please try again.</p>';
+    console.error(error);
+    resultsContainer.innerHTML = '<p>Error loading results.</p>';
   }
 });

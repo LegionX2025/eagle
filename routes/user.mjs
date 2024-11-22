@@ -101,4 +101,32 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+import ExtractedData from '../models/user.mjs';
+
+// Create a text index for search functionality
+await ExtractedData.createIndexes({
+  'web_info.title': 'text',
+  'web_info.description': 'text',
+  'web_info.content': 'text',
+});
+
+router.get('/search', async (req, res) => {
+  const { query } = req.query;
+
+  if (!query) {
+    return res.status(400).json({ message: 'Query parameter is required.' });
+  }
+
+  try {
+    const results = await ExtractedData.find({
+      $text: { $search: query },
+    }).limit(50); // Limit results for performance
+
+    res.json(results);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 export default router;
