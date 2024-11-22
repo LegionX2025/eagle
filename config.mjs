@@ -3,33 +3,36 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const mongoURI1 = process.env.MY_MONGO_DB_DATABASE_URL;
-const mongoURI2 = process.env.MONGODARKNET_DATABASE_URL;
-
 const connectDB1 = async () => {
   try {
-    await mongoose.connect(mongoURI1, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    const conn1 = await mongoose.createConnection(
+      process.env.MY_MONGO_DB_DATABASE_URL,
+      {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      }
+    );
     console.log('Connected to MY_MONGO_DB_DATABASE_URL');
-  } catch (err) {
-    console.error('Error connecting to MY_MONGO_DB_DATABASE_URL:', err);
+    return conn1;
+  } catch (error) {
+    console.error('Error connecting to DB1:', error);
     process.exit(1);
   }
 };
 
 const connectDB2 = async () => {
   try {
-    const connection = await mongoose.createConnection(mongoURI2, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      ssl: true, // If SSL is required
-    });
+    const conn2 = await mongoose.createConnection(
+      process.env.MONGODARKNET_DATABASE_URL,
+      {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      }
+    );
     console.log('Connected to MONGODARKNET_DATABASE_URL');
-    return connection; // Return the connection object
-  } catch (err) {
-    console.error('Error connecting to MONGODARKNET_DATABASE_URL:', err);
+    return conn2;
+  } catch (error) {
+    console.error('Error connecting to DB2:', error);
     process.exit(1);
   }
 };

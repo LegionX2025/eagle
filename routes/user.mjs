@@ -1,29 +1,45 @@
 import express from 'express';
-import User from '../models/user.mjs';
+import { connectDB2 } from '../config.mjs';
+import ExtractedData from '../models/extractedData.mjs';
 
 const router = express.Router();
 
-router.get('/', async (req, res) => {
-  const users = await User.find();
-  res.send(users);
-});
+router.get('/search', async (req, res) => {
+  const { query } = req.query;
 
-router.post('/', async (req, res) => {
-  const newUser = new User(req.body);
-  await newUser.save();
-  res.status(201).send(newUser);
-});
+  if (!query) {
+    return res.status(400).json({ message: 'Query parameter is required.' });
+  }
 
-router.put('/:id', async (req, res) => {
-  const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-  });
-  res.send(updatedUser);
-});
+  try {
+    const conn = await connectDB2();
+    const ExtractedDataModel = conn.model(
+      'ExtractedData',
+      ExtractedData.schema
+    );
 
-router.delete('/:id', async (req, res) => {
-  await User.findByIdAndDelete(req.params.id);
-  res.status(204).send();
+    const results = await ExtractedDataModel.find({
+      $or: [
+        { 'web_info.title': { $regex: query, $options: 'i' } },
+        { 'web_info.description': { $regex: query, $options: 'i' } },
+        { 'web_info.content': { $regex: query, $options: 'i' } },
+        { 'financial_entity.btc_wallets': { $regex: query, $options: 'i' } },
+        { 'financial_entity.eth_wallets': { $regex: query, $options: 'i' } },
+        { 'person_entity.emails': { $regex: query, $options: 'i' } },
+        { 'person_entity.usernames': { $regex: query, $options: 'i' } },
+        { 'person_entity.phone_number': { $regex: query, $options: 'i' } },
+      ],
+    }).limit(20);
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: 'No results found.' });
+    }
+
+    res.json(results);
+  } catch (error) {
+    console.error('Error searching database:', error);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
 });
 
 export default router;

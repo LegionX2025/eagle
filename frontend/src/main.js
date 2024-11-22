@@ -1,4 +1,6 @@
 const API_URL = import.meta.env.VITE_API_URL; // Backend API base URL
+// Connect to your database
+mongoose.connect(process.env["MONGODARKNET_DATABASE_URL"]);
 
 // Handle Signup Form Submission
 document.getElementById('signup-form').addEventListener('submit', async (e) => {
