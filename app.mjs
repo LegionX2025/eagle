@@ -2,6 +2,9 @@ import express from 'express';
 import { connectDB1, connectDB2 } from './config.mjs'; // Import both connection functions
 import userRoutes from './routes/user.mjs';
 import dotenv from 'dotenv';
+import cors from 'cors';
+
+app.use(cors());
 
 dotenv.config();
 

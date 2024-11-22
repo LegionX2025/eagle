@@ -1,61 +1,67 @@
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL; // Backend API base URL
 
-// Signup Form Handler
-document
-  .getElementById('signup-form')
-  .addEventListener('submit', async function (e) {
-    e.preventDefault();
+// Handle Signup Form Submission
+document.getElementById('signup-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
 
-    const name = document.getElementById('name').value;
-    const email = document.getElementById('email').value;
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const responseMessage = document.getElementById('response-message');
 
-    try {
-      const response = await fetch(`${API_URL}/users`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name, email }),
-      });
+  if (!name || !email) {
+    responseMessage.innerText = 'Please provide valid name and email.';
+    responseMessage.classList.add('text-red-500');
+    responseMessage.classList.remove('text-green-500');
+    return;
+  }
 
-      const responseData = await response.json();
+  try {
+    const response = await fetch(`${API_URL}/users`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email }),
+    });
 
-      const responseMessage = document.getElementById('response-message');
-      if (response.ok) {
-        responseMessage.innerText = 'Submission successful!';
-        responseMessage.classList.add('text-green-500');
-        responseMessage.classList.remove('text-red-500');
-      } else {
-        responseMessage.innerText = 'Something went wrong. Please try again.';
-        responseMessage.classList.add('text-red-500');
-        responseMessage.classList.remove('text-green-500');
-      }
-    } catch (error) {
-      const responseMessage = document.getElementById('response-message');
-      responseMessage.innerText = 'Network error. Please try again later.';
+    if (response.ok) {
+      responseMessage.innerText = 'Signup successful!';
+      responseMessage.classList.add('text-green-500');
+      responseMessage.classList.remove('text-red-500');
+    } else {
+      responseMessage.innerText =
+        'Something went wrong. Please try again later.';
       responseMessage.classList.add('text-red-500');
+      responseMessage.classList.remove('text-green-500');
     }
+  } catch (error) {
+    console.error('Signup error:', error);
+    responseMessage.innerText = 'Network error. Please try again.';
+    responseMessage.classList.add('text-red-500');
+  }
 
-    document.getElementById('signup-form').reset();
-  });
+  document.getElementById('signup-form').reset(); // Reset the form fields
+});
 
-// Search Form Handler
-document
-  .getElementById('search-form')
-  .addEventListener('submit', async function (e) {
-    e.preventDefault();
+// Handle Search Form Submission
+document.getElementById('search-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
 
-    const query = document.getElementById('query').value;
-    const responseMessage = document.getElementById('response-message');
+  const query = document.getElementById('query').value.trim();
+  const responseMessage = document.getElementById('response-message');
 
-    try {
-      const response = await fetch(
-        `${API_URL}/search?query=${encodeURIComponent(query)}`
-      );
-      const data = await response.json();
+  if (!query) {
+    responseMessage.innerHTML =
+      '<p class="text-red-500">Please enter a valid search query.</p>';
+    return;
+  }
 
-      if (response.ok && data.length) {
-        responseMessage.innerHTML = `
+  try {
+    const response = await fetch(
+      `${API_URL}/search?query=${encodeURIComponent(query)}`
+    );
+    const data = await response.json();
+
+    if (response.ok && data.length) {
+      responseMessage.innerHTML = `
           <h3 class="text-xl font-bold mb-4 text-gray-800">Search Results:</h3>
           <ul class="list-disc list-inside space-y-4">
             ${data
@@ -72,10 +78,9 @@ document
                     <strong>Description:</strong> ${
                       item.web_info.description || 'N/A'
                     }<br>
-                    <strong>Content:</strong> ${item.web_info.content.slice(
-                      0,
-                      100
-                    )}...<br>
+                    <strong>Content:</strong> ${item.web_info.content
+                      .slice(0, 100)
+                      .trim()}...<br>
                     <strong>BTC Wallets:</strong> ${
                       item.financial_entity.btc_wallets.join(', ') || 'None'
                     }<br>
@@ -97,13 +102,13 @@ document
               .join('')}
           </ul>
         `;
-      } else {
-        responseMessage.innerHTML =
-          '<p class="text-red-500">No results found.</p>';
-      }
-    } catch (error) {
+    } else {
       responseMessage.innerHTML =
-        '<p class="text-red-500">Error fetching results.</p>';
-      console.error('Search error:', error);
+        '<p class="text-red-500">No results found.</p>';
     }
-  });
+  } catch (error) {
+    console.error('Search error:', error);
+    responseMessage.innerHTML =
+      '<p class="text-red-500">Error fetching results. Please try again.</p>';
+  }
+});

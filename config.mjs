@@ -1,5 +1,8 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import cors from 'cors';
+
+app.use(cors());
 
 dotenv.config(); // Load environment variables from .env file
 
